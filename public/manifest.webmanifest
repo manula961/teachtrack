@@ -1,0 +1,53 @@
+{
+  "name": "TeachTrack Pro",
+  "short_name": "TeachTrack",
+  "id": "/",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "display_override": [
+    "window-controls-overlay",
+    "standalone"
+  ],
+  "orientation": "any",
+  "background_color": "#ffffff",
+  "theme_color": "#061a38",
+  "description": "Teacher performance and development tracking for schools",
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Dashboard",
+      "short_name": "Dashboard",
+      "url": "/dashboard"
+    },
+    {
+      "name": "Timetable",
+      "short_name": "Timetable",
+      "url": "/timetable"
+    },
+    {
+      "name": "QR Attendance",
+      "short_name": "QR",
+      "url": "/qr-attendance"
+    }
+  ]
+}

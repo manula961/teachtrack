@@ -1,0 +1,11 @@
+'use client'
+import { useEffect,useState } from 'react'
+import { createClient } from '@/lib/supabase/client'
+import { useData } from '@/components/DataProvider'
+export default function NotificationPreferences(){
+ const{data,loading,insert,update}=useData();const[prefs,setPrefs]=useState<any>({training:true,observations:true,goals:true,timetable:true,achievements:true,general:true});const[msg,setMsg]=useState('')
+ useEffect(()=>{const row=(data.notification_preferences||[])[0];if(row)setPrefs(row)},[data])
+ if(loading)return <div className="loading">Loading preferences…</div>
+ async function save(){try{const user=(await createClient().auth.getUser()).data.user;if(!user)return;const row=(data.notification_preferences||[]).find((x:any)=>x.user_id===user.id);if(row){const{ id:_id,user_id:_user,created_at:_created,...clean }=prefs;await update('notification_preferences',row.id,{...clean,updated_at:new Date().toISOString()})}else await insert('notification_preferences',{...prefs,user_id:user.id});setMsg('Notification preferences saved.')}catch(err:any){setMsg(err.message)}}
+ return <><div className="page-head"><div><span className="eyebrow"><i className="dot"/>Notification choices</span><h1 style={{marginTop:14}}>Notification preferences</h1><p>Choose optional notifications. Mandatory high-priority school announcements are never suppressed.</p></div></div>{msg&&<div className="command"><div><b>{msg}</b></div><i className="pulse"/></div>}<section className="panel" style={{marginTop:18}}>{[['training','Training & certification'],['observations','Observations'],['goals','Goals & deadlines'],['timetable','Timetable & substitutions'],['achievements','Achievements'],['general','General announcements']].map(([k,label])=><label className="queue-row" key={k}><div><b>{label}</b><small>Receive non-critical updates from this category.</small></div><input type="checkbox" checked={Boolean(prefs[k])} onChange={e=>setPrefs((v:any)=>({...v,[k]:e.target.checked}))}/></label>)}<button className="btn btn-primary" style={{marginTop:16}} onClick={save}>Save preferences</button></section></>
+}

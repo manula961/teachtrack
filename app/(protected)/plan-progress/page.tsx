@@ -1,0 +1,8 @@
+'use client'
+import { useData } from '@/components/DataProvider'
+export default function PlanProgress(){
+ const{data,loading,role,profile,update}=useData();if(loading)return <div className="loading">Loading development plans…</div>
+ const leadership=['principal','vice_principal','section_head','reviewer'].includes(role),teachers=data.teachers_dashboard||[]
+ const rows=(data.development_plans||[]).filter((x:any)=>leadership||String(x.teacher_id)===String(profile?.teacher_id))
+ return <><div className="page-head"><div><span className="eyebrow"><i className="dot"/>Development plan progress</span><h1 style={{marginTop:14}}>Progress & milestones</h1><p>Update progress directly and keep professional-development plans current.</p></div></div><div className="cards">{rows.map((p:any)=><article className="person-card" key={p.id}><h3>{p.title}</h3><p>{teachers.find((t:any)=>String(t.id)===String(p.teacher_id))?.name} · {p.focus_area}</p><div className="metric"><span>Progress</span><b>{p.progress}%</b></div><div className="progress"><span style={{width:`${p.progress}%`}}/></div><input type="range" min="0" max="100" step="5" value={p.progress} onChange={e=>update('development_plans',p.id,{progress:Number(e.target.value),status:Number(e.target.value)>=100?'Completed':Number(e.target.value)>=60?'On Track':'Active'})}/><div className="metric"><span>Status</span><b>{p.status}</b></div><small>{p.action_steps||'No action steps recorded.'}</small></article>)}</div></>
+}

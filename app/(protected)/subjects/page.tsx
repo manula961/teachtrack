@@ -1,0 +1,3 @@
+'use client'
+import { CrudModule } from '@/components/CrudModule'
+export default function Page(){return <CrudModule title="Subjects" eyebrow="Curriculum structure" description="Manage subject codes, departments and Sinhala/Tamil/English medium offerings." table="subjects" leadershipOnly fields={[{name:'code',label:'SUBJECT CODE',required:true},{name:'name',label:'SUBJECT NAME',required:true},{name:'department_id',label:'DEPARTMENT ID',type:'number'},{name:'medium',label:'MEDIUM',options:['Sinhala','Tamil','English'],required:true}]} columns={[{key:'code',label:'Code'},{key:'name',label:'Subject'},{key:'department_id',label:'Department ID'},{key:'medium',label:'Medium'},{key:'active',label:'Active'}]}/>}

@@ -1,0 +1,16 @@
+'use client'
+import { useState } from 'react'
+import { Plus } from 'lucide-react'
+import { useData } from '@/components/DataProvider'
+import { TeacherPicker } from '@/components/TeacherPicker'
+export default function Plans(){
+ const {data,loading,role,insert}=useData();const[open,setOpen]=useState(false);const[msg,setMsg]=useState('');const canReview=['principal','vice_principal','section_head','reviewer'].includes(role)
+ const rows=data.development_plans||[],teachers=data.teachers_dashboard||[];const teacher=(id:any)=>teachers.find((t:any)=>String(t.id)===String(id))
+ async function submit(e:React.FormEvent<HTMLFormElement>){e.preventDefault();const fd=new FormData(e.currentTarget);try{await insert('development_plans',{teacher_id:Number(fd.get('teacher_id')),title:String(fd.get('title')),focus_area:String(fd.get('focus_area')),action_steps:String(fd.get('action_steps')||''),target_date:String(fd.get('target_date')||'')||null,progress:Number(fd.get('progress')||0),status:'Active'});setOpen(false);setMsg('Development plan created.')}catch(err:any){setMsg(err.message)}}
+ if(loading)return <div className="loading">Loading development plans…</div>
+ return <><div className="page-head"><div><span className="eyebrow"><i className="dot"/>Professional growth</span><h1 style={{marginTop:14}}>Development plans</h1><p>Turn observation and feedback signals into structured improvement goals and measurable actions.</p></div>{canReview&&<button className="btn btn-primary" onClick={()=>setOpen(true)}><Plus size={16}/> Create plan</button>}</div>
+ {msg&&<div className="command" style={{marginBottom:18}}><div><small>STATUS</small><b>{msg}</b></div><i className="pulse"/></div>}
+ <div className="feature-grid">{rows.map((r:any)=><article className="feature-card" key={r.id}><h3>{r.title}</h3><p>{teacher(r.teacher_id)?.name||'Teacher'} · {r.focus_area}</p><div className="metric"><span>Progress</span><b>{r.progress}%</b></div><div className="progress"><span style={{width:`${r.progress}%`}}/></div><div className="metric"><span>Target</span><b>{r.target_date||'Open'}</b></div></article>)}</div>{!rows.length&&<div className="panel empty">No development plans yet.</div>}
+ {open&&<div className="modal-backdrop" onMouseDown={e=>{if(e.currentTarget===e.target)setOpen(false)}}><div className="modal" role="dialog" aria-modal="true"><div className="panel-head"><div><small>PROFESSIONAL DEVELOPMENT</small><h2>New development plan</h2></div><button className="btn" onClick={()=>setOpen(false)}>Close</button></div><form onSubmit={submit} className="form-grid">
+ <div className="field full"><label>TEACHER</label><TeacherPicker name="teacher_id" required={false} allowEmpty={true} placeholder="Search teacher code, ID or name…"/></div><div className="field"><label>TITLE</label><input name="title" required/></div><div className="field"><label>FOCUS AREA</label><input name="focus_area" required placeholder="Student engagement"/></div><div className="field full"><label>ACTION STEPS</label><textarea name="action_steps" rows={4}/></div><div className="field"><label>TARGET DATE</label><input name="target_date" type="date"/></div><div className="field"><label>STARTING PROGRESS %</label><input name="progress" type="number" min="0" max="100" defaultValue="0"/></div><button className="btn btn-primary full">Create plan</button></form></div></div>}
+ </>}
