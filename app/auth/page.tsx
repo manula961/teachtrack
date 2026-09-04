@@ -3,9 +3,9 @@
 import { useEffect,useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { DemoAccessPanel } from '@/components/DemoAccessPanel'
+import Link from 'next/link'
 import { DemoTourBubble } from '@/components/DemoTourBubble'
-import { demoAccount,type DemoAccount } from '@/lib/demoAccounts'
+import { demoAccount } from '@/lib/demoAccounts'
 
 export default function AuthPage() {
   const router = useRouter()
@@ -26,11 +26,6 @@ export default function AuthPage() {
       setMode('login');setEmail(requested.email);setPassword(requested.password)
     }
   },[])
-
-  function useDemo(account:DemoAccount){
-    setMode('login');setEmail(account.email);setPassword(account.password);setError('')
-    requestAnimationFrame(()=>document.querySelector<HTMLInputElement>('input[name="email"]')?.focus())
-  }
 
   async function submit(e:React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -74,7 +69,7 @@ export default function AuthPage() {
         <span className="eyebrow"><i className="dot"/>Teacher development command center</span>
         <h1>Every teacher.<br/><span>One place.</span></h1>
         <p>Track performance, attendance, lesson quality, professional development, observations, goals and recognition through one secure school platform.</p>
-        <div className="auth-demo-hint"><b>Judging the project?</b><span>Use the demo accounts to test Teacher, Reviewer, Section Head, Vice Principal and Principal access.</span></div>
+        <div className="auth-demo-hint"><b>Judging the project?</b><span>Demo credentials are available on a separate testing page.</span><Link className="btn" href="/demo-access">Open demo access →</Link></div>
       </section>
 
       <div className="auth-stack">
@@ -86,9 +81,9 @@ export default function AuthPage() {
           </div>
 
           <form onSubmit={submit}>
-            {mode==='signup'&&<div className="field"><label>FULL NAME</label><input name="name" required/></div>}
-            <div className="field"><label>EMAIL</label><input name="email" type="email" autoComplete="username" value={email} onChange={e=>setEmail(e.target.value)} required/></div>
-            <div className="field"><label>PASSWORD</label><input name="password" type="password" autoComplete={mode==='login'?'current-password':'new-password'} value={password} onChange={e=>setPassword(e.target.value)} minLength={6} required/></div>
+            {mode==='signup'&&<div className="field"><label htmlFor="teacher-name">FULL NAME</label><input id="teacher-name" name="name" required/></div>}
+            <div className="field"><label htmlFor="teacher-email">EMAIL</label><input id="teacher-email" name="email" type="email" autoComplete="username" value={email} onChange={e=>setEmail(e.target.value)} required/></div>
+            <div className="field"><label htmlFor="teacher-password">PASSWORD</label><input id="teacher-password" name="password" type="password" autoComplete={mode==='login'?'current-password':'new-password'} value={password} onChange={e=>setPassword(e.target.value)} minLength={6} required/></div>
             {error&&<div className="error">{error}</div>}
             <div className="auth-actions">
               <button className="btn btn-primary" disabled={busy}>{busy?'Please wait…':mode==='login'?'Sign in →':'Create account →'}</button>
@@ -98,7 +93,6 @@ export default function AuthPage() {
           <div className="command" style={{marginTop:22}}><div><small>Teacher portal</small><b>Learning & development workspace</b></div><i className="pulse"/></div>
         </section>
 
-        <DemoAccessPanel portal="teacher" onUse={useDemo}/>
       </div>
     </main>
     <DemoTourBubble/>

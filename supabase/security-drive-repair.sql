@@ -87,3 +87,11 @@ create policy "teacher docs authenticated update" on storage.objects for update 
 using(bucket_id='teacher-documents' and (public.is_manager() or (storage.foldername(name))[1]=public.my_teacher_id()::text))
 with check(bucket_id='teacher-documents' and (public.is_manager() or (storage.foldername(name))[1]=public.my_teacher_id()::text));
 
+
+
+-- F04: Evidence rows must never become globally readable merely because teacher_id is null.
+drop policy if exists evidence_read on public.evidence_attachments;
+create policy evidence_read on public.evidence_attachments for select to authenticated using (
+  public.can_review()
+  or teacher_id=(select teacher_id from public.profiles where id=auth.uid())
+);

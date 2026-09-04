@@ -76,28 +76,47 @@ export async function DELETE(_request:NextRequest,{params}:{params:Promise<{id:s
       return NextResponse.json({error:'Invalid evidence ID.'},{status:400})
     }
 
-    // RLS ensures teachers can delete only their own evidence while reviewers/leadership
-    // retain the access already granted by the evidence_write policy.
+    const {data:profile,error:profileError}=await supabase
+      .from('profiles')
+      .select('role,teacher_id')
+      .eq('id',user.id)
+      .single()
+    if(profileError||!profile){
+      return NextResponse.json({error:'User profile not found.'},{status:403})
+    }
+
     const {data:evidence,error}=await supabase
       .from('evidence_attachments')
-      .select('id,storage_provider,drive_file_id')
+      .select('id,teacher_id,storage_provider,drive_file_id')
       .eq('id',evidenceId)
       .single()
 
     if(error||!evidence){
       return NextResponse.json({error:'Evidence not found or access denied.'},{status:404})
     }
+
+    const reviewRoles=new Set(['principal','vice_principal','section_head','reviewer'])
+    const canReview=reviewRoles.has(String(profile.role))
+    const ownsEvidence=Number(profile.teacher_id||0)>0&&Number(profile.teacher_id)===Number(evidence.teacher_id)
+    if(!canReview&&!ownsEvidence){
+      return NextResponse.json({error:'You are not allowed to delete this evidence.'},{status:403})
+    }
+
     if(evidence.storage_provider!=='google_drive'||!evidence.drive_file_id){
       return NextResponse.json({error:'Only Google Drive evidence can be deleted from this endpoint.'},{status:409})
     }
 
-    // Delete Drive first. A 404 is treated as success so an already-manually-deleted
-    // Drive file can still have its orphaned TeachTrack record cleaned up.
-    await deleteDriveFile(String(evidence.drive_file_id))
-
+    // Prove database authorization before the external Drive side effect.
     const {error:deleteError}=await supabase.from('evidence_attachments').delete().eq('id',evidenceId)
     if(deleteError){
-      return NextResponse.json({error:`Drive file removed, but TeachTrack could not remove the evidence record: ${deleteError.message}`},{status:500})
+      return NextResponse.json({error:deleteError.message},{status:403})
+    }
+
+    try{
+      await deleteDriveFile(String(evidence.drive_file_id))
+    }catch(driveError){
+      const message=driveError instanceof Error?driveError.message:'Unable to remove Google Drive file'
+      return NextResponse.json({ok:true,warning:`Evidence record deleted, but Drive cleanup failed: ${message}`},{status:200})
     }
 
     return NextResponse.json({ok:true})

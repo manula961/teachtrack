@@ -157,7 +157,7 @@
 
 
 .help-bubble{
-  position:fixed;left:266px;bottom:28px;z-index:55;width:42px;height:42px;display:grid;place-items:center;border:1px solid var(--line);
+  position:fixed;right:28px;left:auto;bottom:28px;z-index:55;width:42px;height:42px;display:grid;place-items:center;border:1px solid var(--line);
   border-radius:50%;background:#fff;color:var(--ink);box-shadow:0 12px 28px rgba(6,26,56,.12)
 }
 .quick-add-sheet{width:min(620px,94vw);background:#fff;border:1px solid var(--line);border-radius:20px;padding:20px;box-shadow:0 28px 80px rgba(6,26,56,.24)}
@@ -221,7 +221,7 @@
   .mobile-sidebar-head{display:flex;align-items:center;justify-content:space-between;padding:0 5px 10px;font-size:10px;font-weight:900;color:var(--muted)}
   .mobile-scrim{display:block;position:fixed;inset:0;z-index:150;border:0;background:rgba(5,17,35,.38)}
   .mobile-menu-btn{display:grid}
-  .help-bubble{left:16px;bottom:82px}
+  .help-bubble{right:16px;left:auto;bottom:82px}
   .app-content>.main{padding-left:18px;padding-right:18px}
   .global-topbar{padding:0 18px}
   .breadcrumb-bar{padding:7px 18px}
@@ -487,7 +487,7 @@
 }
 .demo-access-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:12px}
 .demo-access-head small{font-size:8px;letter-spacing:.12em;font-weight:950;color:var(--cyan)}
-.demo-access-head h3{font-size:16px;margin:4px 0 4px}
+.demo-access-head h2{font-size:16px;margin:4px 0 4px}
 .demo-access-head p{font-size:10px;line-height:1.45;color:var(--muted);margin:0;max-width:480px}
 .demo-password-bar{
   display:grid;grid-template-columns:auto auto 1fr auto;align-items:center;gap:8px;

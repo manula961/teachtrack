@@ -1,8 +1,7 @@
 'use client'
 import Link from 'next/link'
 import { useState } from 'react'
-import { ArrowLeft,ArrowRight,CheckCircle2,KeyRound,ShieldCheck,Sparkles,UserRound } from 'lucide-react'
-import { DEMO_ACCOUNTS } from '@/lib/demoAccounts'
+import { ArrowLeft,ArrowRight,CheckCircle2,Sparkles,UserRound } from 'lucide-react'
 
 const steps=[
  {title:'Principal Command Center',text:'Start with school-wide operations, development signals and attention items.',href:'/dashboard',role:'Principal',demo:'principal',portal:'cms'},
@@ -25,7 +24,7 @@ export default function PublicTour(){
   </header>
 
   <section className="public-tour-hero">
-   <div><span className="eyebrow"><i className="dot"/>Public demo tour</span><h1>See the complete teacher-development journey.</h1><p>This tour is public so judges can understand the workflow before signing in. Feature pages remain protected and require one of the demo accounts below.</p></div>
+   <div><span className="eyebrow"><i className="dot"/>Public demo tour</span><h1>See the complete teacher-development journey.</h1><p>This tour is public so judges can understand the workflow before signing in. Feature pages remain protected. Use the dedicated Demo Access page when you are ready to test a role.</p></div>
    <Sparkles size={54}/>
   </section>
 
@@ -34,14 +33,9 @@ export default function PublicTour(){
    <div className="progress" style={{margin:'24px 0'}}><span style={{width:`${((i+1)/steps.length)*100}%`}}/></div>
    <div className="public-tour-actions">
     <button className="btn" disabled={i===0} onClick={()=>setI(Math.max(0,i-1))}><ArrowLeft size={16}/> Previous</button>
-    <div className="toolbar"><Link className="btn" href="/auth"><UserRound size={15}/> All demo accounts</Link><Link className="btn btn-primary" href={`${s.portal==='cms'?'/cms/login':'/auth'}?demo=${s.demo}&next=${encodeURIComponent(s.href)}`}>Sign in as {s.role} →</Link></div>
+    <div className="toolbar"><Link className="btn" href="/demo-access"><UserRound size={15}/> Demo access</Link><Link className="btn btn-primary" href={`${s.portal==='cms'?'/cms/login':'/auth'}?demo=${s.demo}&next=${encodeURIComponent(s.href)}`}>Sign in as {s.role} →</Link></div>
     <button className="btn" disabled={i===steps.length-1} onClick={()=>setI(Math.min(steps.length-1,i+1))}>Next <ArrowRight size={16}/></button>
    </div>
-  </section>
-
-  <section className="public-tour-accounts">
-   <div className="panel-head"><div><small>DEMO ACCESS</small><h2>Five roles, one demo password</h2><p>Use these intentionally public credentials only with the competition/demo database.</p></div><span className="status"><KeyRound size={13}/> TeachTrack#2026</span></div>
-   <div className="demo-tour-account-grid">{DEMO_ACCOUNTS.map(a=><article key={a.role} className="feature-card"><ShieldCheck size={18}/><h3>{a.label}</h3><code>{a.email}</code><p>{a.note}</p><Link className="btn" href={`${a.portal==='cms'?'/cms/login':'/auth'}?demo=${a.role}`}>Use {a.label} demo →</Link></article>)}</div>
   </section>
 
   <section className="public-tour-steps">{steps.map((x,index)=><button key={x.title} className={`feature-card ${index===i?'active-tour-step':''}`} onClick={()=>setI(index)}><small>STEP {index+1}</small><h3>{x.title}</h3><p>{x.text}</p><span>{x.role}</span>{index===i&&<CheckCircle2 size={17}/>}</button>)}</section>

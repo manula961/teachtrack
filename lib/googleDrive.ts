@@ -96,8 +96,8 @@ async function findTeacherFolder(token:string,teacherId:number,folderName:string
   const rootFolderId=required('GOOGLE_DRIVE_FOLDER_ID')
   const q=[
     `'${driveQueryLiteral(rootFolderId)}' in parents`,
-    `name='${driveQueryLiteral(folderName)}'`,
     `mimeType='application/vnd.google-apps.folder'`,
+    `appProperties has { key='teachtrackTeacherId' and value='${driveQueryLiteral(String(teacherId))}' }`,
     'trashed=false',
   ].join(' and ')
   const params=new URLSearchParams({
@@ -117,7 +117,33 @@ async function findTeacherFolder(token:string,teacherId:number,folderName:string
     throw new Error(data?.error?.message||'Unable to check the teacher Google Drive folder')
   }
   const files=Array.isArray(data.files)?data.files:[]
-  return files[0] as {id:string;name:string}|undefined
+  if(files[0])return files[0] as {id:string;name:string}
+
+  // Backward compatibility for folders created before appProperties were added.
+  const legacyQ=[
+    `'${driveQueryLiteral(rootFolderId)}' in parents`,
+    `name='${driveQueryLiteral(folderName)}'`,
+    `mimeType='application/vnd.google-apps.folder'`,
+    'trashed=false',
+  ].join(' and ')
+  const legacyParams=new URLSearchParams({
+    q:legacyQ,
+    fields:'files(id,name,createdTime)',
+    pageSize:'10',
+    spaces:'drive',
+    supportsAllDrives:'true',
+    includeItemsFromAllDrives:'true',
+  })
+  const legacyResponse=await fetch(`https://www.googleapis.com/drive/v3/files?${legacyParams.toString()}`,{
+    headers:{authorization:`Bearer ${token}`},
+    cache:'no-store',
+  })
+  const legacyData=await legacyResponse.json().catch(()=>({}))
+  if(!legacyResponse.ok){
+    throw new Error(legacyData?.error?.message||'Unable to check the teacher Google Drive folder')
+  }
+  const legacyFiles=Array.isArray(legacyData.files)?legacyData.files:[]
+  return legacyFiles[0] as {id:string;name:string}|undefined
 }
 
 async function createTeacherFolder(token:string,teacherId:number,folderName:string){

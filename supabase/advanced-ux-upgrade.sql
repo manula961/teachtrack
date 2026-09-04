@@ -147,7 +147,7 @@ create policy goal_checkins_write on public.goal_checkins for all to authenticat
 
 drop policy if exists evidence_read on public.evidence_attachments;
 create policy evidence_read on public.evidence_attachments for select to authenticated using (
-  public.can_review() or teacher_id is null or teacher_id=(select teacher_id from public.profiles where id=auth.uid())
+  public.can_review() or teacher_id=(select teacher_id from public.profiles where id=auth.uid())
 );
 drop policy if exists evidence_write on public.evidence_attachments;
 create policy evidence_write on public.evidence_attachments for all to authenticated using (
