@@ -5,7 +5,7 @@ import { Copy, KeyRound, ShieldCheck, UserRound, ArrowLeft } from 'lucide-react'
 import { DEMO_ACCOUNTS, DEMO_PASSWORD } from '@/lib/demoAccounts'
 
 export default function DemoAccessPage(){
-  return <main className="public-tour-page demo-access-page">
+  return <main id="main-content" className="public-tour-page demo-access-page">
     <header className="public-tour-header">
       <Link className="brand" href="/auth"><span className="brand-mark"/><span><strong>TeachTrack</strong><small>DEVELOPMENT CENTER</small></span></Link>
       <div className="toolbar"><Link className="btn" href="/auth"><ArrowLeft size={15}/> Teacher login</Link><Link className="btn" href="/cms/login">Leadership login</Link><Link className="btn btn-primary" href="/tour">Demo tour</Link></div>

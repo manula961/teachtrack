@@ -64,7 +64,7 @@ export default function AuthPage() {
   }
 
   return <>
-    <main className="auth-wrap demo-auth-wrap">
+    <main id="main-content" className="auth-wrap demo-auth-wrap">
       <section className="hero">
         <span className="eyebrow"><i className="dot"/>Teacher development command center</span>
         <h1>Every teacher.<br/><span>One place.</span></h1>

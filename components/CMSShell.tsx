@@ -92,7 +92,7 @@ function CmsInner({children}:{children:React.ReactNode}){
     <div><b>TeachTrack CMS</b><small>{roleLabel}</small></div>
     <button className="icon-btn" onClick={()=>{setPalette(true);setMobileOpen(false)}} aria-label="Search CMS"><Search size={18}/></button>
    </header>
-   <main className="main">{children}</main>
+   <main id="main-content" className="main">{children}</main>
   </div>
 
   {palette&&<div className="command-palette-backdrop cms-palette-backdrop" role="presentation" onMouseDown={e=>{if(e.currentTarget===e.target)setPalette(false)}}>

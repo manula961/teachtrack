@@ -17,7 +17,7 @@ const steps=[
 export default function PublicTour(){
  const[i,setI]=useState(0)
  const s=steps[i]
- return <main className="public-tour-page">
+ return <main id="main-content" className="public-tour-page">
   <header className="public-tour-header">
    <Link className="brand" href="/auth"><span className="brand-mark"/><span><strong>TeachTrack</strong><small>COMPETITION DEMO</small></span></Link>
    <div className="toolbar"><Link className="btn" href="/auth">Teacher login</Link><Link className="btn btn-primary" href="/cms/login">Leadership login</Link></div>

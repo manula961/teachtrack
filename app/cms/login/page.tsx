@@ -45,7 +45,7 @@ export default function CmsLoginPage() {
   }
 
   return <>
-    <main className="auth-wrap cms-auth demo-auth-wrap">
+    <main id="main-content" className="auth-wrap cms-auth demo-auth-wrap">
       <section className="hero">
         <span className="eyebrow"><i className="dot"/>Restricted management system</span>
         <h1>School control.<br/><span>Behind the scenes.</span></h1>

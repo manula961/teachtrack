@@ -201,7 +201,7 @@ function Inner({children}:{children:React.ReactNode}){
     </div>
    </header>
    <div className="breadcrumb-bar"><nav aria-label="Breadcrumb"><Link href="/dashboard">Home</Link>{crumbs.filter(c=>c.href!=='/dashboard').map((c,i)=><span key={c.href}><span className="crumb-sep">›</span>{c.href===path?<b>{c.label}</b>:<Link href={c.href}>{c.label}</Link>}</span>)}</nav><div className="page-shortcuts"><button onClick={()=>setPalette(true)}><Search size={14}/> Search <kbd>/</kbd></button><button onClick={()=>setQuickOpen(true)}><Plus size={14}/> Quick add <kbd>N</kbd></button></div></div>
-   <main className="main">{children}</main>
+   <main id="main-content" className="main">{children}</main>
   </div>
 
   <Link href="/help" className="help-bubble" aria-label="Help" title="Help"><HelpCircle size={20}/></Link>

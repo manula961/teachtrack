@@ -692,3 +692,12 @@
   .cms-palette-meta>span:last-child{display:none}
   .cms-palette-results{max-height:58vh}
 }
+
+/* Final accessibility and interaction hardening */
+.skip-link{position:fixed;left:16px;top:12px;z-index:1000;transform:translateY(-160%);background:var(--ink);color:#fff;padding:10px 14px;border-radius:10px;font-weight:850;box-shadow:var(--shadow)}
+.skip-link:focus{transform:translateY(0)}
+:where(a,button,input,select,textarea,summary,[tabindex]):focus-visible{outline:3px solid rgba(22,169,196,.52);outline-offset:2px}
+button:disabled{cursor:not-allowed}
+html{scroll-behavior:smooth}
+body{min-width:320px;overflow-x:hidden}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
