@@ -40,7 +40,7 @@ DO $initplan_fix$
 DECLARE p record;
   new_using text;
   new_check text;
-  cmd text;
+  policy_cmd text;
 BEGIN
   FOR p IN
     SELECT schemaname, tablename, policyname, cmd, qual, with_check
@@ -51,11 +51,11 @@ BEGIN
   LOOP
     new_using := regexp_replace(p.qual,'auth[.]uid[(][)]','(select auth.uid())','g');
     new_check := regexp_replace(p.with_check,'auth[.]uid[(][)]','(select auth.uid())','g');
-    cmd := upper(p.cmd);
-    IF cmd='INSERT' THEN
+    policy_cmd := upper(p.cmd);
+    IF policy_cmd='INSERT' THEN
       EXECUTE format('ALTER POLICY %I ON %I.%I WITH CHECK (%s)',
                      p.policyname,p.schemaname,p.tablename,new_check);
-    ELSIF cmd IN ('SELECT','DELETE') THEN
+    ELSIF policy_cmd IN ('SELECT','DELETE') THEN
       EXECUTE format('ALTER POLICY %I ON %I.%I USING (%s)',
                      p.policyname,p.schemaname,p.tablename,new_using);
     ELSE
