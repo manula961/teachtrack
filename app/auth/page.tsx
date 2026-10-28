@@ -53,7 +53,17 @@ export default function AuthPage() {
 
     await supabase.from('login_events').insert({user_id:res.data.user.id,client_note:'Teacher portal sign-in'})
 
-    const profile=await supabase.from('profiles').select('role').eq('id',res.data.user.id).single()
+    const profile=await supabase.from('profiles').select('role,teacher_id').eq('id',res.data.user.id).single()
+    if(profile.error||!profile.data){
+      await supabase.auth.signOut();setBusy(false)
+      setError('Your school account profile is not ready. Contact the school administrator before signing in.')
+      return
+    }
+    if(profile.data.role==='teacher'&&!profile.data.teacher_id){
+      await supabase.auth.signOut();setBusy(false)
+      setError('Your teacher account is pending verification. Ask school management to create or link a teacher record using your confirmed email address.')
+      return
+    }
     if(['principal','vice_principal','section_head','reviewer'].includes(String(profile.data?.role))){
       await supabase.auth.signOut();setBusy(false)
       setError('This sign-in is for teachers only. Leadership demo accounts use the CMS login.')
