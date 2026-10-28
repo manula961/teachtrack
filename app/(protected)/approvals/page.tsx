@@ -16,22 +16,14 @@ export default function Approvals(){
  async function createWorkflow(e:React.FormEvent<HTMLFormElement>){e.preventDefault();const f=new FormData(e.currentTarget);const steps=String(f.get('steps')||'').split(',').map(x=>x.trim()).filter(Boolean);if(!steps.length)return setMsg('Add at least one workflow step.');try{await insert('approval_workflows',{name:String(f.get('name')),entity_type:String(f.get('entity_type')),steps,active:true});setWorkflowOpen(false);setMsg('Workflow template created.')}catch(e:any){setMsg(e.message)}}
 
  async function act(req:any,decision:'Approved'|'Rejected'){
-  const wf=workflow(req.workflow_id),steps=Array.isArray(wf?.steps)?wf.steps:[];const expected=steps[req.current_step]
-  if(role!=='principal'&&role!==expected){setMsg(`Current approval step requires ${label(expected||'an authorized reviewer')}.`);return}
-  const comment=window.prompt(`${decision} comment (optional):`)||''
+  const comment=window.prompt(decision+' comment (optional):')
+  if(comment===null)return
   try{
-   const supabase=createClient()
-   const ar=await supabase.from('approval_actions').insert({request_id:req.id,actor_role:role,action:decision,comment})
-   if(ar.error)throw ar.error
-   if(decision==='Rejected'){
-    const rr=await supabase.from('approval_requests').update({status:'Rejected',completed_at:new Date().toISOString()}).eq('id',req.id);if(rr.error)throw rr.error
-   }else{
-    const next=req.current_step+1
-    const finished=role==='principal'||next>=steps.length
-    const rr=await supabase.from('approval_requests').update(finished?{status:'Approved',completed_at:new Date().toISOString()}:{current_step:next}).eq('id',req.id);if(rr.error)throw rr.error
-   }
-   await refresh();setMsg(decision==='Approved'?'Approval step completed.':'Request rejected.')
-  }catch(e:any){setMsg(e.message)}
+   const result=await createClient().rpc('review_approval_request',{p_request_id:Number(req.id),p_decision:decision,p_comment:comment})
+   if(result.error)throw result.error
+   await refresh()
+   setMsg(decision==='Approved'?'Approval step completed.':'Request rejected.')
+  }catch(e:any){setMsg(e.message||'Unable to record approval decision.')}
  }
 
  if(loading)return <div className="loading">Loading approval workflows…</div>
