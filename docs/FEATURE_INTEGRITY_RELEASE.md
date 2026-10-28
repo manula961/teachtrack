@@ -100,3 +100,19 @@ Production remains at previously verified main commit `5617488e` until
 the owner explicitly releases this feature-integrity PR. Browser smoke and
 quality checks run in GitHub Actions on the PR, but without a staging database
 they cannot validate the new RPC permission rules.
+
+## Historical certificate audit
+
+Four existing training rows currently have `certificate_verified=true` but
+no `certificate_url`. The new verification trigger only checks **newly
+granted** verification; it intentionally does not invalidate or block
+unrelated edits to legacy records. The management training screen now lists
+these cases so school leadership can attach an HTTPS evidence link, clear the
+legacy flag and re-verify. Do not silently remove historical verification
+statuses or fabricate certificate evidence.
+
+## Remaining risk and evidence collection
+
+The proposed SQL is code-reviewed but has not been applied to a staging or
+production database in this turn. A successful Next.js build and public-page
+browser audit are not substitutes for the rollback-only SQL role test.
