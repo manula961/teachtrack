@@ -313,3 +313,13 @@ Each dependency remains subject to its own license and terms.
 ## Final note
 
 TeachTrack is designed to make teacher development more organized, understandable, secure, and encouraging. It brings professional records, evidence, analytics, school responsibilities, development planning, and recognition together in a single platform so teachers can see their growth and leadership can support improvement with better information.
+
+
+## Live application and verification
+
+- **Hosted application:** https://teachtrack.devoraid.com
+- **Competition demo access:** https://teachtrack.devoraid.com/demo-access
+- **GitHub repository:** https://github.com/manula961/teachtrack
+- **Repair and security verification:** [Audit remediation notes](docs/AUDIT_REMEDIATION.md)
+
+Use only designated competition demo accounts with fictional data. School administrators should verify ownership before linking teacher accounts and enable leaked-password protection in Supabase Auth before using real school records.
