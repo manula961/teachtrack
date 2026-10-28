@@ -18,9 +18,27 @@ jobs:
         with:
           node-version: "22"
       - run: npm ci
+      - name: Build current repair branch for browser tests
+        env:
+          NEXT_TELEMETRY_DISABLED: "1"
+          NEXT_PUBLIC_SUPABASE_URL: https://example.supabase.co
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: placeholder-for-build-only
+        run: npm run build
       - run: npm install --no-save --package-lock=false playwright@1.57.0 @axe-core/playwright@4.11.0
       - run: npx playwright install --with-deps chromium
+      - name: Launch local Next.js application
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: https://example.supabase.co
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: placeholder-for-build-only
+        run: |
+          nohup npm run start -- -p 3000 > /tmp/teachtrack-server.log 2>&1 &
+          for i in $(seq 1 30); do
+            if curl -fsS http://127.0.0.1:3000/api/health >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/teachtrack-server.log
+          exit 1
       - name: Test mobile and desktop public pages
         env:
-          BASE_URL: https://teachtrack.devoraid.com
+          BASE_URL: http://127.0.0.1:3000
         run: node scripts/browser-public-check.mjs
