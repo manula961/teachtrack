@@ -10,6 +10,7 @@ export default function Approvals(){
  const workflow=(id:any)=>workflows.find((w:any)=>String(w.id)===String(id))
  const label=(r:string)=>r==='section_head'?'Section Head':r==='vice_principal'?'Vice Principal':r==='principal'?'Principal':r
  const canReview=['principal','vice_principal','section_head','reviewer'].includes(role);const leadership=['principal','vice_principal'].includes(role)
+ const unmatched=(data.lessons||[]).filter((l:any)=>l.status==='Pending'&&!requests.some((r:any)=>r.entity_type==='lesson_plan'&&Number(r.entity_id)===Number(l.id)&&r.status==='Pending')).length
 
  async function submit(e:React.FormEvent<HTMLFormElement>){e.preventDefault();const f=new FormData(e.currentTarget);const wf=workflow(f.get('workflow_id'));try{await insert('approval_requests',{workflow_id:Number(f.get('workflow_id')),entity_type:wf?.entity_type||'general',entity_id:f.get('entity_id')?Number(f.get('entity_id')):null,title:String(f.get('title')),description:String(f.get('description')||''),current_step:0,status:'Pending'});setOpen(false);setMsg('Approval request submitted.')}catch(e:any){setMsg(e.message)}}
 
@@ -26,8 +27,16 @@ export default function Approvals(){
   }catch(e:any){setMsg(e.message||'Unable to record approval decision.')}
  }
 
+ async function reconcile(){
+  try{
+   const {data:count,error}=await createClient().rpc('reconcile_pending_lessons')
+   if(error)throw error
+   await refresh()
+   setMsg(String(count||0)+' legacy pending lesson(s) queued for review by school leadership.')
+  }catch(e:any){setMsg(e.message||'Could not reconcile lessons.')}
+ }
  if(loading)return <div className="loading">Loading approval workflows…</div>
- return <><div className="page-head"><div><span className="eyebrow"><i className="dot"/>Controlled school approvals</span><h1 style={{marginTop:14}}>Approval workflow engine</h1><p>Route lesson plans, leave, training and general school requests through configurable leadership approval steps.</p></div><div className="toolbar">{leadership&&<button className="btn" onClick={()=>setWorkflowOpen(true)}><Workflow size={16}/> New workflow</button>}<button className="btn btn-primary" onClick={()=>setOpen(true)}><Plus size={16}/> New request</button></div></div>
+ return <><div className="page-head"><div><span className="eyebrow"><i className="dot"/>Controlled school approvals</span><h1 style={{marginTop:14}}>Approval workflow engine</h1><p>Route lesson plans, leave, training and general school requests through configurable leadership approval steps.</p></div><div className="toolbar">{leadership&&<button className="btn" onClick={()=>setWorkflowOpen(true)}><Workflow size={16}/> New workflow</button>}{leadership&&unmatched>0&&<button className="btn" onClick={reconcile}>Requeue {unmatched} legacy lesson(s)</button>}<button className="btn btn-primary" onClick={()=>setOpen(true)}><Plus size={16}/> New request</button></div></div>
  {msg&&<div className="command" style={{marginBottom:18}}><div><small>WORKFLOW STATUS</small><b>{msg}</b></div><i className="pulse"/></div>}
  <div className="grid-2"><section className="panel"><div className="panel-head"><div><h2>Workflow templates</h2><p>Active approval routes</p></div><Workflow/></div>{workflows.map((w:any)=><div className="queue-row" key={w.id}><div><b>{w.name}</b><small>{(w.steps||[]).map(label).join(' → ')}</small></div><span className="status good">{w.active?'Active':'Paused'}</span></div>)}</section>
  <section className="panel"><div className="panel-head"><div><h2>Approval summary</h2><p>Current request status</p></div></div>{[['Pending',requests.filter((r:any)=>r.status==='Pending').length],['Approved',requests.filter((r:any)=>r.status==='Approved').length],['Rejected',requests.filter((r:any)=>r.status==='Rejected').length],['Your role',label(role)]].map(x=><div className="metric" key={String(x[0])}><span>{x[0]}</span><b>{x[1]}</b></div>)}</section></div>
