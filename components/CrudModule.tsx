@@ -3,6 +3,7 @@ import { useEffect,useMemo,useRef,useState } from 'react'
 import { Columns3,Download,Plus,Trash2,Undo2,X } from 'lucide-react'
 import { useData } from './DataProvider'
 import { TeacherPicker } from './TeacherPicker'
+import { csvCell } from '@/lib/exportCsv'
 
 type Field={name:string;label:string;type?:string;options?:string[];placeholder?:string;required?:boolean}
 type Props={title:string;eyebrow:string;description:string;table:string;fields:Field[];columns:{key:string;label:string}[];leadershipOnly?:boolean}
@@ -32,7 +33,7 @@ export function CrudModule({title,eyebrow,description,table,fields,columns,leade
   return String(value)
  }
  function cellText(row:any,key:string){const value=row[key];if(value==null||value==='')return '—';if(key.toLowerCase().includes('teacher_id')){const t=teacherById(value);return t?`${t.teacher_code||`ID ${t.id}`} · ${t.name||'Teacher'}`:`Teacher ID ${value}`};return String(value)}
- function exportCsv(target=filtered){const q=(v:any)=>`"${String(v??'').replace(/"/g,'""')}"`;const csv=[visibleColumns.map(c=>q(c.label)).join(','),...target.map(r=>visibleColumns.map(c=>q(cellText(r,c.key))).join(','))].join('\n');const blob=new Blob([csv],{type:'text/csv;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=`${table}.csv`;a.click();URL.revokeObjectURL(url)}
+ function exportCsv(target=filtered){const q=(v:any)=>csvCell(v);const csv=[visibleColumns.map(c=>q(c.label)).join(','),...target.map(r=>visibleColumns.map(c=>q(cellText(r,c.key))).join(','))].join('\n');const blob=new Blob([csv],{type:'text/csv;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=`${table}.csv`;a.click();URL.revokeObjectURL(url)}
  function updateProgress(form:HTMLFormElement){const required=fields.filter(f=>f.required);if(!required.length)return setFormProgress(100);const fd=new FormData(form),filled=required.filter(f=>String(fd.get(f.name)||'').trim()).length;setFormProgress(Math.round(filled/required.length*100))}
  function saveDraft(form:HTMLFormElement){const payload=Object.fromEntries(new FormData(form).entries());localStorage.setItem(draftKey,JSON.stringify({payload,savedAt:new Date().toISOString(),href:location.pathname,label:title}));setHasDraft(true);setMsg(navigator.onLine?'Draft saved locally.':'Offline draft queued locally.')}
  function restoreDraft(){
