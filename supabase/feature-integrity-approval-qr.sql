@@ -260,10 +260,14 @@ GRANT EXECUTE ON FUNCTION public.submit_lesson_plan(bigint) TO authenticated;
 CREATE OR REPLACE FUNCTION tt_internal.validate_certificate_verification()
 RETURNS trigger LANGUAGE plpgsql SECURITY INVOKER SET search_path=pg_catalog AS $$
 BEGIN
- IF NEW.certificate_verified AND (
-   NEW.certificate_url IS NULL OR btrim(NEW.certificate_url)='' OR
-   NEW.status<>'Completed' OR NEW.approval_status<>'Approved'
- ) THEN
+ -- Existing historical verifications without evidence are left unchanged;
+ -- any NEW verification must satisfy the evidence and status requirements.
+ IF NEW.certificate_verified
+    AND (TG_OP='INSERT' OR NOT COALESCE(OLD.certificate_verified,false))
+    AND (
+      NEW.certificate_url IS NULL OR btrim(NEW.certificate_url)='' OR
+      NEW.status<>'Completed' OR NEW.approval_status<>'Approved'
+    ) THEN
    RAISE EXCEPTION 'Certificate verification requires approved completed training and evidence'
      USING ERRCODE='22023';
  END IF;
