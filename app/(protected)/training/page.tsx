@@ -66,7 +66,19 @@ export default function Training() {
     <button className="btn" disabled={busy!==null||!r.certificate_url}
      onClick={()=>review(r.id,{certificate_verified:true})}>Verify certificate</button>
    </div>)}
-   {!pending.length&&!completed.length&&<div className="empty">No training approvals or certificate checks are pending.</div>}
+   {legacy.map((r:any)=><form className="queue-row" key={'legacy-'+r.id} onSubmit={e=>{
+    e.preventDefault()
+    const value=String(new FormData(e.currentTarget).get('certificate_url')||'').trim()
+    if(!value.startsWith('https://')){setMessage('Evidence must use an HTTPS URL.');return}
+    review(r.id,{certificate_url:value,certificate_verified:false})
+   }}>
+    <div><b>{r.title} · Verification evidence missing</b>
+     <small>{teacherName(r.teacher_id)} · Attach a verified certificate link, then verify again.</small>
+     <input name="certificate_url" type="url" pattern="https://.*" placeholder="https://..." required/>
+    </div>
+    <button className="btn" type="submit" disabled={busy!==null}>Attach evidence</button>
+   </form>)}
+   {!pending.length&&!completed.length&&!legacy.length&&<div className="empty">No training approvals or certificate checks are pending.</div>}
   </section>}
  </>
 }
