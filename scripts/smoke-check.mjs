@@ -1,6 +1,6 @@
 // Read-only public HTTP tests. This script never authenticates or mutates data.
 const origin=process.env.BASE_URL
-if(!origin){console.error('Set BASE_URL to the application's public URL');process.exit(2)}
+if(!origin){console.error("Set BASE_URL to the application's public URL");process.exit(2)}
 const base=new URL(origin)
 if(base.protocol!=='https:'){console.error('BASE_URL must use HTTPS');process.exit(2)}
 const tests=[
