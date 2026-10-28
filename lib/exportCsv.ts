@@ -4,6 +4,6 @@
  */
 export function csvCell(value: unknown): string {
  const original=String(value??'')
- const safe=/^[\s]*[=+\-@]/.test(original)?"'"+original:original
+ const safe=typeof value==='number'?original:/^[\s]*[=+\-@]/.test(original)?"'"+original:original
  return '"'+safe.replace(/"/g,'""')+'"'
 }
