@@ -186,3 +186,92 @@ EXECUTE FUNCTION tt_internal.sync_qr_checkin_to_attendance();
 -- Limit stale repeat submissions even if the frontend retries.
 CREATE INDEX IF NOT EXISTS idx_tt_qr_sessions_validity
 ON public.qr_attendance_sessions(code,active,closes_at);
+
+-- Prevent bypass of the approval engine by setting entity statuses directly.
+-- Only safe non-decision columns remain writable by signed-in users.
+REVOKE UPDATE ON TABLE public.lessons FROM PUBLIC,anon,authenticated;
+GRANT UPDATE (title,subject,grade,date,objective) ON public.lessons TO authenticated;
+REVOKE UPDATE ON TABLE public.training FROM PUBLIC,anon,authenticated;
+GRANT UPDATE (title,provider,date,hours,status,expiry_date,certificate_url,certificate_verified)
+ON public.training TO authenticated;
+REVOKE UPDATE ON TABLE public.leave_requests FROM PUBLIC,anon,authenticated;
+GRANT UPDATE (leave_type,start_date,end_date,reason) ON public.leave_requests TO authenticated;
+
+ALTER POLICY "lessons self insert" ON public.lessons
+WITH CHECK ((public.is_admin() OR teacher_id=public.my_teacher_id())
+  AND status IN ('Draft','Pending'));
+ALTER POLICY "training manager write insert" ON public.training
+WITH CHECK (public.is_manager() AND approval_status='Pending'
+  AND certificate_verified=false);
+ALTER POLICY "leave own create" ON public.leave_requests
+WITH CHECK ((teacher_id=public.my_teacher_id() OR public.is_manager())
+  AND status='Pending');
+ALTER POLICY "approval requests create" ON public.approval_requests
+WITH CHECK (requested_by=(select auth.uid()) AND status='Pending'
+  AND current_step=0 AND completed_at IS NULL
+  AND EXISTS (
+    SELECT 1 FROM public.approval_workflows wf
+    WHERE wf.id=workflow_id AND wf.active=true AND wf.entity_type=approval_requests.entity_type
+  )
+  AND (
+    entity_id IS NULL OR
+    entity_type NOT IN ('lesson_plan','training','leave') OR
+    (entity_type='lesson_plan' AND EXISTS(
+      SELECT 1 FROM public.lessons l WHERE l.id=entity_id
+      AND (l.teacher_id=public.my_teacher_id() OR public.is_manager())
+    )) OR
+    (entity_type='training' AND EXISTS(
+      SELECT 1 FROM public.training t WHERE t.id=entity_id
+      AND (t.teacher_id=public.my_teacher_id() OR public.is_manager())
+    )) OR
+    (entity_type='leave' AND EXISTS(
+      SELECT 1 FROM public.leave_requests l WHERE l.id=entity_id
+      AND (l.teacher_id=public.my_teacher_id() OR public.is_manager())
+    ))
+  ));
+
+-- Only the owner may submit an existing draft for approval.
+CREATE OR REPLACE FUNCTION tt_internal.submit_lesson_plan(p_lesson_id bigint)
+RETURNS void LANGUAGE plpgsql SECURITY DEFINER SET search_path=pg_catalog
+AS $$
+DECLARE v_lesson public.lessons%ROWTYPE;
+BEGIN
+ IF auth.uid() IS NULL THEN
+   RAISE EXCEPTION 'Authentication required' USING ERRCODE='42501';
+ END IF;
+ SELECT * INTO v_lesson FROM public.lessons WHERE id=p_lesson_id FOR UPDATE;
+ IF NOT FOUND OR v_lesson.status<>'Draft' THEN
+   RAISE EXCEPTION 'Only drafts can be submitted' USING ERRCODE='22023';
+ END IF;
+ IF v_lesson.teacher_id IS DISTINCT FROM public.my_teacher_id() AND NOT public.is_manager() THEN
+   RAISE EXCEPTION 'Not your lesson plan' USING ERRCODE='42501';
+ END IF;
+ UPDATE public.lessons SET status='Pending' WHERE id=p_lesson_id;
+END;$$;
+REVOKE ALL ON FUNCTION tt_internal.submit_lesson_plan(bigint) FROM PUBLIC,anon,authenticated;
+GRANT EXECUTE ON FUNCTION tt_internal.submit_lesson_plan(bigint) TO authenticated;
+CREATE OR REPLACE FUNCTION public.submit_lesson_plan(p_lesson_id bigint)
+RETURNS void LANGUAGE sql SECURITY INVOKER SET search_path=pg_catalog
+AS $$SELECT tt_internal.submit_lesson_plan(p_lesson_id);$$;
+REVOKE ALL ON FUNCTION public.submit_lesson_plan(bigint) FROM PUBLIC,anon;
+GRANT EXECUTE ON FUNCTION public.submit_lesson_plan(bigint) TO authenticated;
+
+-- Certificate verification needs evidence, a completed course, and approval.
+CREATE OR REPLACE FUNCTION tt_internal.validate_certificate_verification()
+RETURNS trigger LANGUAGE plpgsql SECURITY INVOKER SET search_path=pg_catalog AS $$
+BEGIN
+ IF NEW.certificate_verified AND (
+   NEW.certificate_url IS NULL OR btrim(NEW.certificate_url)='' OR
+   NEW.status<>'Completed' OR NEW.approval_status<>'Approved'
+ ) THEN
+   RAISE EXCEPTION 'Certificate verification requires approved completed training and evidence'
+     USING ERRCODE='22023';
+ END IF;
+ RETURN NEW;
+END;$$;
+REVOKE ALL ON FUNCTION tt_internal.validate_certificate_verification()
+FROM PUBLIC,anon,authenticated;
+DROP TRIGGER IF EXISTS trg_validate_training_certificate ON public.training;
+CREATE TRIGGER trg_validate_training_certificate BEFORE INSERT OR UPDATE
+ON public.training FOR EACH ROW
+EXECUTE FUNCTION tt_internal.validate_certificate_verification();
