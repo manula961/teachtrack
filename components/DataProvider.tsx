@@ -45,7 +45,10 @@ export function DataProvider({children}:{children:React.ReactNode}){
 
   const out:Record<string,AnyRow[]>={}
   const errors:Record<string,string>={}
-  await Promise.all(tables.map(async table=>{
+  // Limit simultaneous PostgREST requests to avoid overloading the browser/API.
+  const concurrency=6
+  for(let start=0;start<tables.length;start+=concurrency){
+   await Promise.all(tables.slice(start,start+concurrency).map(async table=>{
    const result=await supabase.from(table).select('*')
    if(result.error){
     errors[table]=result.error.message
@@ -53,7 +56,8 @@ export function DataProvider({children}:{children:React.ReactNode}){
    }else{
     out[table]=result.data||[]
    }
-  }))
+   }))
+  }
 
   setData(out)
   setDataErrors(errors)
@@ -92,16 +96,18 @@ export function DataProvider({children}:{children:React.ReactNode}){
  }
 
  async function update(table:string,id:number,payload:AnyRow){
-  const result=await supabase.from(table).update(payload).eq('id',id)
+  const result=await supabase.from(table).update(payload).eq('id',id).select('id')
   if(result.error)throw result.error
+  if(!result.data?.length)throw new Error('Record could not be updated. Check your access or refresh the page.')
   await audit('Updated '+table,table,id)
   if(typeof window!=='undefined')window.dispatchEvent(new CustomEvent('tt-toast',{detail:{type:'success',message:'Changes saved'}}))
   await refresh()
  }
 
  async function remove(table:string,id:number){
-  const result=await supabase.from(table).delete().eq('id',id)
+  const result=await supabase.from(table).delete().eq('id',id).select('id')
   if(result.error)throw result.error
+  if(!result.data?.length)throw new Error('Record could not be deleted. Check your access or refresh the page.')
   await audit('Deleted '+table,table,id)
   if(typeof window!=='undefined')window.dispatchEvent(new CustomEvent('tt-toast',{detail:{type:'success',message:'Record deleted'}}))
   await refresh()
