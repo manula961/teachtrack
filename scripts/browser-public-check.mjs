@@ -30,6 +30,7 @@ try {
     const a11y=await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa','wcag21a','wcag21aa']).analyze()
     if(a11y.violations.length){
       console.log(`A11Y ${width}px ${path}: ${a11y.violations.map(x=>x.id+':'+x.nodes.length).join(', ')}`)
+      if(width===390){for(const violation of a11y.violations){for(const node of violation.nodes.slice(0,15)){console.log('A11Y DETAIL',JSON.stringify({path,rule:violation.id,target:node.target,html:node.html.slice(0,180),failure:node.failureSummary?.slice(0,370)}))}}}
     }else{
       console.log(`A11Y ${width}px ${path}: no WCAG A/AA issues detected`)
     }
