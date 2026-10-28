@@ -198,7 +198,7 @@ REVOKE UPDATE ON TABLE public.leave_requests FROM PUBLIC,anon,authenticated;
 GRANT UPDATE (leave_type,start_date,end_date,reason) ON public.leave_requests TO authenticated;
 
 ALTER POLICY "lessons self insert" ON public.lessons
-WITH CHECK ((public.is_admin() OR teacher_id=public.my_teacher_id())
+WITH CHECK ((public.is_manager() OR teacher_id=public.my_teacher_id())
   AND status IN ('Draft','Pending'));
 ALTER POLICY "training manager write insert" ON public.training
 WITH CHECK (public.is_manager() AND approval_status='Pending'
@@ -275,3 +275,50 @@ DROP TRIGGER IF EXISTS trg_validate_training_certificate ON public.training;
 CREATE TRIGGER trg_validate_training_certificate BEFORE INSERT OR UPDATE
 ON public.training FOR EACH ROW
 EXECUTE FUNCTION tt_internal.validate_certificate_verification();
+
+-- Prevent duplicate active approval records while allowing resubmission history.
+CREATE UNIQUE INDEX IF NOT EXISTS idx_tt_one_pending_request_per_entity
+ON public.approval_requests(entity_type,entity_id)
+WHERE entity_id IS NOT NULL AND status='Pending';
+
+-- Migration-era records can have status Pending without a queued workflow.
+-- Requeue explicitly as the current principal/vice principal, never claiming
+-- to be the unverified original requester.
+CREATE OR REPLACE FUNCTION tt_internal.reconcile_pending_lessons()
+RETURNS integer LANGUAGE plpgsql SECURITY DEFINER SET search_path=pg_catalog
+AS $$
+DECLARE v_workflow bigint; v_count integer;
+BEGIN
+ IF auth.uid() IS NULL OR NOT public.is_manager() THEN
+   RAISE EXCEPTION 'School leadership permissions required' USING ERRCODE='42501';
+ END IF;
+ SELECT id INTO v_workflow FROM public.approval_workflows
+ WHERE entity_type='lesson_plan' AND active ORDER BY id LIMIT 1;
+ IF v_workflow IS NULL THEN
+   RAISE EXCEPTION 'No active lesson approval workflow' USING ERRCODE='22023';
+ END IF;
+ INSERT INTO public.approval_requests(
+  workflow_id,entity_type,entity_id,title,description,requested_by,current_step,status
+ )
+ SELECT v_workflow,'lesson_plan',l.id,'Lesson plan: '||l.title,
+  'Legacy pending lesson requeued for review by school leadership; original requester not inferred.',
+  auth.uid(),0,'Pending'
+ FROM public.lessons l
+ WHERE l.status='Pending' AND NOT EXISTS(
+  SELECT 1 FROM public.approval_requests ar
+  WHERE ar.entity_type='lesson_plan' AND ar.entity_id=l.id AND ar.status='Pending'
+ )
+ ON CONFLICT DO NOTHING;
+ GET DIAGNOSTICS v_count=ROW_COUNT;
+ RETURN v_count;
+END;$$;
+REVOKE ALL ON FUNCTION tt_internal.reconcile_pending_lessons() FROM PUBLIC,anon,authenticated;
+GRANT EXECUTE ON FUNCTION tt_internal.reconcile_pending_lessons() TO authenticated;
+CREATE OR REPLACE FUNCTION public.reconcile_pending_lessons()
+RETURNS integer LANGUAGE sql SECURITY INVOKER SET search_path=pg_catalog
+AS $$SELECT tt_internal.reconcile_pending_lessons();$$;
+REVOKE ALL ON FUNCTION public.reconcile_pending_lessons() FROM PUBLIC,anon;
+GRANT EXECUTE ON FUNCTION public.reconcile_pending_lessons() TO authenticated;
+
+-- No public trigger routines should have direct function execution grants.
+REVOKE ALL ON FUNCTION tt_internal.validate_qr_checkin() FROM PUBLIC,anon,authenticated;
