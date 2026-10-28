@@ -330,3 +330,6 @@ GRANT EXECUTE ON FUNCTION public.reconcile_pending_lessons() TO authenticated;
 
 -- No public trigger routines should have direct function execution grants.
 REVOKE ALL ON FUNCTION tt_internal.validate_qr_checkin() FROM PUBLIC,anon,authenticated;
+
+-- Refresh the Data API's function signature cache after new RPC definitions.
+NOTIFY pgrst, 'reload schema';
