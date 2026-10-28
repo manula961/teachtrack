@@ -36,12 +36,12 @@ export function workloadScore(data:Record<string,Row[]>,teacherId:any){
 }
 export function departmentHealth(data:Record<string,Row[]>,department:any){
   const teachers=(data.teachers_dashboard||[]).filter((t:Row)=>String(t.department||'').toLowerCase()===String(department.name||department).toLowerCase())
-  const scores=teachers.map((t:Row)=>composite(data,t).score)
+  const scores=teachers.map((t:Row)=>composite(data,t)).filter(x=>x.assessed).map(x=>x.score)
   const avg=scores.length?Math.round(scores.reduce((a:number,b:number)=>a+b,0)/scores.length):0
   const improving=teachers.filter((t:Row)=>performanceTrend(data,t).direction==='Improving').length
   const atRisk=(data.goals||[]).filter((g:Row)=>g.status==='At Risk'&&teachers.some((t:Row)=>String(t.id)===String(g.teacher_id))).length
   const training=(data.training||[]).filter((x:Row)=>teachers.some((t:Row)=>String(t.id)===String(x.teacher_id))).length
-  return {teachers,avg,improving,atRisk,training}
+  return {teachers,avg,assessedCount:scores.length,improving,atRisk,training}
 }
 export function growthStreak(data:Record<string,Row[]>,teacherId:any){
   const id=String(teacherId)
