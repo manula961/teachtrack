@@ -7,7 +7,8 @@ const browser=await chromium.launch({headless:true})
 let failed=0
 try {
  for(const width of [390,1280]){
-  const page=await browser.newPage({viewport:{width,height:844}})
+  const context=await browser.newContext({viewport:{width,height:844}})
+  const page=await context.newPage()
   for(const path of routes){
    const url=new URL(path,origin).toString()
    try {
@@ -34,7 +35,7 @@ try {
     }
    }catch(error){failed++;console.error(`FAIL ${width}px ${path}: ${error.message}`)}
   }
-  await page.close()
+  await context.close()
  }
 } finally { await browser.close() }
 console.log(`Browser checks complete, failures: ${failed}`)
