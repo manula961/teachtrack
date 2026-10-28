@@ -4,6 +4,7 @@ import { FormEvent, useMemo, useState } from 'react'
 import Link from 'next/link'
 import { Pencil, Plus } from 'lucide-react'
 import { useData } from '@/components/DataProvider'
+import { composite } from '@/lib/teacherInsights'
 
 export default function Teachers() {
   const { loading, data, role, insert, update } = useData()
@@ -109,7 +110,7 @@ export default function Teachers() {
     )}
 
     <div className="cards">
-      {rows.map((t: any) => (
+      {rows.map((t: any) => {const score=composite(data,t);return (
         <article className="person-card" key={t.id}>
           <div className="person-top">
             <div className="avatar">{t.initials}</div>
@@ -141,16 +142,16 @@ export default function Teachers() {
             ))}
           </div>
 
-          <div className="metric"><span>Performance</span><b>{t.performance_score ?? 0}%</b></div>
+          <div className="metric"><span>Performance</span><b>{score.assessed ? score.score+'%' : 'Not assessed'}</b></div>
           <div className="progress">
-            <span style={{ width: `${Math.min(Number(t.performance_score || 0), 100)}%` }}/>
+            <span style={{ width: `${score.assessed ? score.score : 0}%` }}/>
           </div>
           <div className="metric"><span>Attendance</span><b>{t.attendance_score ?? 100}%</b></div>
           <div className="metric"><span>Feedback</span><b>{t.feedback_score ?? 0}/5</b></div>
-          <p>{t.experience} years experience · {t.qualification}</p>
+          <p>{score.evidenceCount}/{score.totalMetrics} indicators · {t.experience} years experience · {t.qualification}</p>
           <Link className="btn" href={`/teacher-360?teacher=${t.id}`}>View 360° profile →</Link>
         </article>
-      ))}
+      )})}
     </div>
 
     {open && (

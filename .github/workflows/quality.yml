@@ -25,5 +25,6 @@ jobs:
       - run: npm ci
       - run: npm audit --audit-level=high
       - run: node --check scripts/smoke-check.mjs
+      - run: node --experimental-strip-types --test scripts/feature-integrity.test.mjs
       - run: npm run check
       - run: npm run build

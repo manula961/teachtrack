@@ -3,6 +3,7 @@ import { useEffect,useMemo,useRef,useState } from 'react'
 import { Columns3,Download,Plus,X } from 'lucide-react'
 import { useData } from './DataProvider'
 import { TeacherPicker } from './TeacherPicker'
+import { csvCell } from '@/lib/exportCsv'
 
 type Field={name:string;label:string;type?:string;options?:string[];required?:boolean;full?:boolean;defaultValue?:string|number}
 type Props={title:string;subtitle:string;table:string;columns:{key:string;label:string;render?:(row:any)=>React.ReactNode}[];fields?:Field[];adminOnlyCreate?:boolean;createLabel?:string;transform?:(fd:FormData)=>Record<string,any>}
@@ -20,7 +21,7 @@ export function Page({title,subtitle,table,columns,fields=[],adminOnlyCreate=fal
  function toggleSort(key:string){setSort(s=>s?.key===key?{key,dir:s.dir===1?-1:1}:{key,dir:1})}
  function toggleColumn(key:string){const next=hidden.includes(key)?hidden.filter(x=>x!==key):[...hidden,key];setHidden(next);localStorage.setItem(`tt-columns-${table}`,JSON.stringify(next))}
  function saveView(){if(!query.trim())return;const name=window.prompt('Name this saved view:',query.trim());if(!name)return;const next=[...savedViews.filter(v=>v.name!==name),{name,query}];setSavedViews(next);localStorage.setItem(`tt-views-${table}`,JSON.stringify(next))}
- function exportCsv(target=filtered){const clean=(v:any)=>`"${String(v??'').replace(/"/g,'""')}"`;const csv=[visibleColumns.map(c=>clean(c.label)).join(','),...target.map(r=>visibleColumns.map(c=>clean(r[c.key])).join(','))].join('\n');const blob=new Blob([csv],{type:'text/csv;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=`${table}.csv`;a.click();URL.revokeObjectURL(url)}
+ function exportCsv(target=filtered){const clean=(v:any)=>csvCell(v);const csv=[visibleColumns.map(c=>clean(c.label)).join(','),...target.map(r=>visibleColumns.map(c=>clean(r[c.key])).join(','))].join('\n');const blob=new Blob([csv],{type:'text/csv;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=`${table}.csv`;a.click();URL.revokeObjectURL(url)}
  function updateProgress(form:HTMLFormElement){const required=fields.filter(f=>f.required);if(!required.length)return setProgress(100);const fd=new FormData(form);setProgress(Math.round(required.filter(f=>String(fd.get(f.name)||'').trim()).length/required.length*100))}
  function saveDraft(form:HTMLFormElement){localStorage.setItem(draftKey,JSON.stringify({payload:Object.fromEntries(new FormData(form).entries()),savedAt:new Date().toISOString(),href:location.pathname,label:title}));setHasDraft(true)}
  function restoreDraft(){const form=formRef.current;if(!form)return;try{const d=JSON.parse(localStorage.getItem(draftKey)||'null');if(!d?.payload)return;for(const[k,v]of Object.entries(d.payload)){const el=form.elements.namedItem(k) as HTMLInputElement|HTMLTextAreaElement|HTMLSelectElement|null;if(el&&el.type!=='hidden')el.value=String(v??'')}updateProgress(form)}catch{}}

@@ -2,7 +2,7 @@
 import Link from 'next/link'
 import { useEffect,useState } from 'react'
 import { useData } from '@/components/DataProvider'
-import { derivedAlerts, performanceTrend } from '@/lib/teacherInsights'
+import { composite, derivedAlerts, performanceTrend } from '@/lib/teacherInsights'
 import { OnboardingChecklist } from '@/components/OnboardingChecklist'
 import { DashboardWidgetBoard } from '@/components/DashboardWidgetBoard'
 function Kpi({label,value,note}:{label:string,value:string|number,note:string}){return <div className="kpi"><small>{label}</small><b>{value}</b><span>{note}</span></div>}
@@ -21,7 +21,8 @@ export default function Dashboard(){
  const pendingLeave=leaves.filter((l:any)=>l.status==='Pending').length
  const upcomingEvents=events.filter((e:any)=>String(e.start_at).slice(0,10)>=today).sort((a:any,b:any)=>String(a.start_at).localeCompare(String(b.start_at))).slice(0,4)
  const expiringDocs=docs.filter((d:any)=>d.expiry_date&&d.expiry_date>=today&&d.expiry_date<=new Date(Date.now()+30*86400000).toISOString().slice(0,10)).length
- const avgPerf=scopedTeachers.length?Math.round(scopedTeachers.reduce((s:number,t:any)=>s+Number(t.performance_score||0),0)/scopedTeachers.length):0
+ const assessedScores=scopedTeachers.map((t:any)=>composite(data,t)).filter(x=>x.assessed)
+ const avgPerf=assessedScores.length?Math.round(assessedScores.reduce((sum:number,x:any)=>sum+x.score,0)/assessedScores.length):null
  const avgFeedback=scopedFeedback.length?(scopedFeedback.reduce((s:number,f:any)=>s+Number(f.rating),0)/scopedFeedback.length).toFixed(1):'0.0'
  const late=scopedAttendance.filter((a:any)=>a.status==='Late').length,activeGoals=scopedGoals.filter((g:any)=>g.status==='Active').length
  const recent=[...data.activity_logs||[]].sort((a:any,b:any)=>String(b.created_at).localeCompare(String(a.created_at))).slice(0,6)
@@ -31,7 +32,7 @@ export default function Dashboard(){
  return <><div className="page-head"><div><span className="eyebrow"><i className="dot"/>{leadership?'School leadership command center':'Teacher development command center'}</span><h1>Good day, {profile?.full_name?.split(' ')[0]||'Teacher'}.</h1><p>{leadership?'Live school operations, staffing and teacher-development intelligence.':'Your teaching, development and recognition in one place.'}</p></div><Link className="btn btn-primary" href="/analytics">View analytics →</Link></div>
  {!leadership&&<OnboardingChecklist/>}
  <DashboardWidgetBoard/>
- <div className="kpis">{leadership?<><Kpi label="TEACHERS" value={teachers.length} note="Active faculty records"/><Kpi label="ON LEAVE TODAY" value={onLeave} note={`${pendingLeave} requests pending`}/><Kpi label="WEEKLY LESSONS" value={entries.length} note="Timetable assignments"/><Kpi label="AVG PERFORMANCE" value={`${avgPerf}%`} note="Composite development score"/></>:<><Kpi label="AVG PERFORMANCE" value={`${avgPerf}%`} note="Composite development score"/><Kpi label="FEEDBACK RATING" value={`${avgFeedback}/5`} note={`${scopedFeedback.length} feedback records`}/><Kpi label="ACTIVE GOALS" value={activeGoals} note="Professional growth targets"/><Kpi label="NOTIFICATIONS" value={notifications.filter((n:any)=>!n.read_at).length} note="Current alerts"/></>}</div>
+ <div className="kpis">{leadership?<><Kpi label="TEACHERS" value={teachers.length} note="Active faculty records"/><Kpi label="ON LEAVE TODAY" value={onLeave} note={`${pendingLeave} requests pending`}/><Kpi label="WEEKLY LESSONS" value={entries.length} note="Timetable assignments"/><Kpi label="AVG PERFORMANCE" value={avgPerf===null?"Not assessed":`${avgPerf}%`} note={`${assessedScores.length}/${scopedTeachers.length} teachers with evidence`}/></>:<><Kpi label="AVG PERFORMANCE" value={avgPerf===null?"Not assessed":`${avgPerf}%`} note={`${assessedScores.length}/${scopedTeachers.length} teachers with evidence`}/><Kpi label="FEEDBACK RATING" value={`${avgFeedback}/5`} note={`${scopedFeedback.length} feedback records`}/><Kpi label="ACTIVE GOALS" value={activeGoals} note="Professional growth targets"/><Kpi label="NOTIFICATIONS" value={notifications.filter((n:any)=>!n.read_at).length} note="Current alerts"/></>}</div>
  <div className="grid"><section className="panel"><div className="panel-head"><div><small style={{color:'#7c899c'}}>LIVE OPERATIONS</small><h2>{leadership?'Principal overview':"Today's activity"}</h2><p>Operational data from Supabase</p></div><span className="status">Live</span></div>
  <div className="kpis" style={{gridTemplateColumns:'repeat(3,1fr)'}}><Kpi label="LATE ARRIVALS" value={late} note="Attendance exceptions"/><Kpi label="TRAINING" value={scopedTraining.length} note="Development records"/><Kpi label="LESSON PLANS" value={scopedLessons.length} note="Planning records"/></div>
  <div className="command"><div><small>Platform status</small><b>All systems active · {expiringDocs} document(s) expiring soon</b></div><i className="pulse"/></div></section>

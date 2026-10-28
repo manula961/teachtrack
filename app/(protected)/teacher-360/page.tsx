@@ -45,7 +45,7 @@ export default function Teacher360(){
     <section className="panel">
       <div className="panel-head"><div><small>{teacher.teacher_code||`ID ${teacher.id}`}</small><h2>{teacher.name}</h2><p>{teacher.subject||'Teacher'} · {teacher.department||'No department'} · {teacher.section||'No section'}</p></div><div className="toolbar">{teacher.teacher_code&&<button className="btn" onClick={()=>navigator.clipboard?.writeText(teacher.teacher_code)} title="Copy teacher code"><Clipboard size={14}/> Copy code</button>}<span className={`status ${trend.direction==='Improving'?'good':''}`}>{trend.symbol} {trend.direction}</span></div></div>
       <div className="kpis">
-        <div className="kpi"><small>COMPOSITE</small><b>{score.score}%</b><span>Transparent weighted score</span></div>
+        <div className="kpi"><small>COMPOSITE</small><b>{score.assessed?score.score+'%':'Not assessed'}</b><span>Transparent weighted score</span></div>
         <div className="kpi"><small>TRAINING</small><b>{own.training.length}</b><span>Development records</span></div>
         <div className="kpi"><small>FEEDBACK</small><b>{own.feedback.length}</b><span>Feedback records</span></div>
         <div className="kpi"><small>ACHIEVEMENTS</small><b>{own.achievements.length}</b><span>Recognitions</span></div>

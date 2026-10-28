@@ -28,36 +28,47 @@ export function clamp(v: number) {
 
 export function composite(data: Record<string, Row[]>, teacher: Row) {
   const own = teacherRows(data, teacher.id)
+  const attendanceKnown = own.attendance.length > 0
   const present = own.attendance.filter(x => x.status === 'Present').length
   const late = own.attendance.filter(x => x.status === 'Late').length
-  const attendance = own.attendance.length ? clamp(((present + late) / own.attendance.length) * 100) : Number(teacher.attendance_score ?? 100)
-  const punctuality = own.attendance.length ? clamp((present / own.attendance.length) * 100) : attendance
-  const feedback = own.feedback.length
-    ? clamp((own.feedback.reduce((s, x) => s + Number(x.rating || 0), 0) / own.feedback.length) / 5 * 100)
-    : clamp(Number(teacher.feedback_score || 0) * 20)
-  const observation = own.observations.length
-    ? clamp((own.observations.reduce((s, x) => s + Number(x.rating || 0), 0) / own.observations.length) / 5 * 100)
-    : 80
-  const lesson = own.lessons.length
-    ? clamp(own.lessons.filter(x => ['Approved', 'Completed'].includes(String(x.status))).length / own.lessons.length * 100)
-    : 75
-  const training = clamp(Math.min(100, own.training.length * 12))
-  const achievement = clamp(Math.min(100, own.achievements.length * 18))
-  const score = clamp(attendance * .18 + punctuality * .12 + observation * .22 + feedback * .16 + lesson * .14 + training * .10 + achievement * .08)
+  const attendance = attendanceKnown ? clamp(((present + late) / own.attendance.length) * 100) : 0
+  const punctuality = attendanceKnown ? clamp((present / own.attendance.length) * 100) : 0
 
-  return {
-    score,
-    metrics: [
-      { label: 'Attendance', value: attendance, weight: 18 },
-      { label: 'Punctuality', value: punctuality, weight: 12 },
-      { label: 'Observation', value: observation, weight: 22 },
-      { label: 'Feedback', value: feedback, weight: 16 },
-      { label: 'Lesson planning', value: lesson, weight: 14 },
-      { label: 'Training', value: training, weight: 10 },
-      { label: 'Achievements', value: achievement, weight: 8 },
-    ],
-    own,
-  }
+  const feedbackKnown = own.feedback.length > 0
+  const feedback = feedbackKnown
+    ? clamp((own.feedback.reduce((s, x) => s + Number(x.rating || 0), 0) / own.feedback.length) / 5 * 100)
+    : 0
+  const observationKnown = own.observations.length > 0
+  const observation = observationKnown
+    ? clamp((own.observations.reduce((s, x) => s + Number(x.rating || 0), 0) / own.observations.length) / 5 * 100)
+    : 0
+  const lessonKnown = own.lessons.length > 0
+  const lesson = lessonKnown
+    ? clamp(own.lessons.filter(x => x.status === 'Approved').length / own.lessons.length * 100)
+    : 0
+  const completedTraining = own.training.filter(x => x.status === 'Completed')
+  const trainingKnown = completedTraining.length > 0
+  const training = trainingKnown
+    ? clamp(completedTraining.reduce((sum, x) => sum + Number(x.hours || 0), 0) / 40 * 100)
+    : 0
+  const achievementKnown = own.achievements.length > 0
+  const achievement = achievementKnown ? clamp(own.achievements.length * 18) : 0
+
+  const metrics = [
+    { label: 'Attendance', value: attendance, weight: 18, assessed: attendanceKnown },
+    { label: 'Punctuality', value: punctuality, weight: 12, assessed: attendanceKnown },
+    { label: 'Observation', value: observation, weight: 22, assessed: observationKnown },
+    { label: 'Feedback', value: feedback, weight: 16, assessed: feedbackKnown },
+    { label: 'Lesson planning', value: lesson, weight: 14, assessed: lessonKnown },
+    { label: 'Training', value: training, weight: 10, assessed: trainingKnown },
+    { label: 'Achievements', value: achievement, weight: 8, assessed: achievementKnown },
+  ]
+  const evidenceWeight = metrics.reduce((sum, metric) => sum + (metric.assessed ? metric.weight : 0), 0)
+  const score = evidenceWeight
+    ? clamp(metrics.reduce((sum, metric) => sum + (metric.assessed ? metric.value * metric.weight : 0), 0) / evidenceWeight)
+    : 0
+  return { score, assessed: evidenceWeight > 0, evidenceCount: metrics.filter(x => x.assessed).length,
+    totalMetrics: metrics.length, metrics, own }
 }
 
 function datedScore(items: Row[], value: (r: Row) => number, dateKey = 'date') {
@@ -88,9 +99,10 @@ export function performanceTrend(data: Record<string, Row[]>, teacher: Row) {
 
 export function recommendedPathway(data: Record<string, Row[]>, teacher: Row) {
   const result = composite(data, teacher)
-  const sorted = [...result.metrics].sort((a, b) => a.value - b.value)
+  const assessed = result.metrics.filter(m => m.assessed)
+  const sorted = (assessed.length ? assessed : result.metrics).sort((a, b) => a.value - b.value)
   const weakest = sorted[0]
-  const second = sorted[1]
+  const second = sorted[1] || sorted[0]
   const recommendations: Record<string, string[]> = {
     Attendance: ['Review attendance pattern', 'Agree an attendance support target', 'Recheck after 30 days'],
     Punctuality: ['Set a punctuality target', 'Review morning duty/travel constraints', 'Recognize sustained improvement'],
@@ -103,7 +115,7 @@ export function recommendedPathway(data: Record<string, Row[]>, teacher: Row) {
   return {
     weakest,
     second,
-    steps: recommendations[weakest.label] || ['Create a focused development goal', 'Track evidence', 'Review progress'],
+    steps: assessed.length ? (recommendations[weakest.label] || ['Create a focused development goal', 'Track evidence', 'Review progress']) : ['Collect baseline attendance, feedback and observation evidence', 'Record a development goal', 'Reassess after new evidence is available'],
     result,
   }
 }
