@@ -701,3 +701,17 @@ button:disabled{cursor:not-allowed}
 html{scroll-behavior:smooth}
 body{min-width:320px;overflow-x:hidden}
 @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+
+
+/* WCAG AA: cyan is an accent color, not a sufficient small-text foreground. */
+.status.good,
+.demo-account-copy code,
+.demo-tour-account-grid code,
+.public-tour-steps > button > span {
+  color: #07536b;
+}
+[data-theme="dark"] .demo-account-copy code,
+[data-theme="dark"] .demo-tour-account-grid code,
+[data-theme="dark"] .public-tour-steps > button > span {
+  color: #8fe5f7;
+}
