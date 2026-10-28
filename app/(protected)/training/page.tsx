@@ -13,6 +13,7 @@ export default function Training() {
  const teacherName=(id:any)=>teachers.find((t:any)=>String(t.id)===String(id))?.name||'Teacher ID '+id
  const pending=(data.training||[]).filter((t:any)=>t.approval_status==='Pending')
  const completed=(data.training||[]).filter((t:any)=>t.approval_status==='Approved'&&t.status==='Completed'&&!t.certificate_verified)
+ const legacy=(data.training||[]).filter((t:any)=>t.certificate_verified&&!String(t.certificate_url||'').trim())
 
  async function review(id:number,changes:Record<string,any>) {
   if(busy!==null)return
