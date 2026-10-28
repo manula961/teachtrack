@@ -23,6 +23,10 @@ jobs:
       - name: Apply compatible security patches
         run: |
           npm ci
+          # Next.js 15 permits PostCSS 8; override the vulnerable transitive range.
+          # Avoid a breaking Next.js 16 upgrade until separately tested.
+          npm pkg set 'overrides.postcss=^8.5.23'
+          npm install
           npm audit fix
           npm audit --audit-level=moderate
           npm run check
