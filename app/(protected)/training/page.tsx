@@ -1,5 +1,6 @@
 'use client'
 import { useState } from 'react'
+import Link from 'next/link'
 import { Page, status } from '@/components/Page'
 import { useData } from '@/components/DataProvider'
 
@@ -57,10 +58,7 @@ export default function Training() {
    {message&&<div className="command" role="status">{message}</div>}
    {pending.map((r:any)=><div className="queue-row" key={'pending-'+r.id}>
     <div><b>{r.title}</b><small>{teacherName(r.teacher_id)} · {r.provider} · {r.hours} hours</small></div>
-    <div className="toolbar">
-     <button className="btn btn-primary" disabled={busy!==null} onClick={()=>review(r.id,{approval_status:'Approved'})}>Approve</button>
-     <button className="btn" disabled={busy!==null} onClick={()=>review(r.id,{approval_status:'Rejected',certificate_verified:false})}>Reject</button>
-    </div>
+    <Link className="btn btn-primary" href="/approvals">Review approval workflow</Link>
    </div>)}
    {completed.map((r:any)=><div className="queue-row" key={'certificate-'+r.id}>
     <div><b>{r.title}</b><small>{teacherName(r.teacher_id)} · Certificate {r.certificate_url?'evidence URL recorded':'evidence missing'}</small></div>
