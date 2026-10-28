@@ -1,7 +1,8 @@
 'use client'
 import { Download } from 'lucide-react'
 import { useData } from '@/components/DataProvider'
-function csv(rows:any[]){if(!rows.length)return '';const keys=Array.from(new Set(rows.flatMap(r=>Object.keys(r))));const esc=(v:any)=>`"${String(v??'').replace(/"/g,'""')}"`;return [keys.map(esc).join(','),...rows.map(r=>keys.map(k=>esc(r[k])).join(','))].join('\n')}
+import { csvCell } from '@/lib/exportCsv'
+function csv(rows:any[]){if(!rows.length)return '';const keys=Array.from(new Set(rows.flatMap(r=>Object.keys(r))));const esc=(v:any)=>csvCell(v);return [keys.map(esc).join(','),...rows.map(r=>keys.map(k=>esc(r[k])).join(','))].join('\n')}
 export default function Exports(){
  const {data,loading}=useData();if(loading)return <div className="loading">Preparing exports…</div>
  const teachers=data.teachers_dashboard||[];const teacher=(id:any)=>teachers.find((t:any)=>String(t.id)===String(id))
