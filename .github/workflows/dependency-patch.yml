@@ -1,7 +1,6 @@
 name: Apply dependency security patches
 on:
-  push:
-    branches: [audit-fixes-2026-10-28]
+  workflow_dispatch:
 permissions:
   contents: write
 jobs:
