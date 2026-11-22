@@ -45,6 +45,17 @@ The system is built to help schools:
 
 ## Core features
 
+```mermaid
+flowchart LR
+  A["Record evidence"] --> B["Review observations"] --> C["Set development goals"] --> D["Track progress"]
+  classDef primary fill:#3730a3,stroke:#3730a3,color:#fff
+  classDef accent fill:#0f766e,stroke:#0f766e,color:#fff
+  class A primary
+  class B accent
+  class C primary
+  class D accent
+```
+
 ### Teacher profiles
 
 TeachTrack maintains detailed teacher records containing information such as teacher ID, automatically generated teacher code, name, email, subject, department, section, teaching experience, qualifications, skills, and status. Teacher records can be searched by code, numeric ID, name, subject, department, or section.
@@ -169,6 +180,8 @@ The interface includes categorized navigation, breadcrumbs, academic-year and te
 
 TeachTrack includes a web manifest, application icons, service-worker support, install capability, connectivity awareness, and an offline fallback experience for supported browsers.
 
+---
+
 ## User roles and permissions
 
 TeachTrack uses five primary application roles.
@@ -234,7 +247,17 @@ TeachTrack's professional-performance view uses multiple indicators instead of o
 
 The resulting analytics are intended to support professional reflection and leadership discussion. They are not designed as an automated employment-decision system.
 
+---
+
 ## Technology stack
+
+**Workspace guide**
+
+| Area | Start here |
+| --- | --- |
+| Teacher | [Development plans](app/(protected)/development/page.tsx) |
+| Reviewer | [Observations](app/(protected)/observations/page.tsx) |
+| School leader | [Department insights](app/(protected)/department-insights/page.tsx) |
 
 ### Frontend
 
@@ -267,7 +290,12 @@ TeachTrack is designed for deployment on **Vercel** with Supabase providing clou
 
 TeachTrack includes teacher-facing and management-oriented areas covering dashboards, teacher profiles, attendance, training, feedback, lesson plans, analytics, observations, development plans, approvals, evidence, documents, achievements, departments, classes, timetables, substitutions, leave, examinations, duties, meetings, mentoring, skills, reports, notifications, data quality, school goals, security review, and other school-development workflows.
 
+---
+
 ## Typical teacher experience
+
+> [!TIP]
+> Start with your teacher profile, then follow your goals and add evidence as you work.
 
 A teacher can sign in, review their professional profile, view attendance and performance information, maintain planning and development records, follow goals and check-ins, review training and certifications, upload professional evidence into their own automatically organized Drive folder, review achievements and milestones, and monitor relevant alerts and recommendations.
 
@@ -286,6 +314,8 @@ Teachers should use their own account for personal professional records. Leaders
 The repository contains the Supabase schema and upgrade migrations used by the final application. For a new database, migrations should be applied in the documented order, ending with the latest security and Google Drive repair migration. Existing databases should apply only migrations that have not already been installed; the base schema should not be rerun over an existing installation.
 
 The final migration set includes support for role-based access, timetable functionality, full-school modules, workflow approvals, automatic teacher linking, competition polish, teacher sections, department/class relationships, advanced UX features, and security/Google Drive evidence repairs.
+
+---
 
 ## Privacy and responsible use
 
@@ -341,6 +371,8 @@ Each dependency remains subject to its own license and terms.
 
 TeachTrack is designed to make teacher development more organized, understandable, secure, and encouraging. It brings professional records, evidence, analytics, school responsibilities, development planning, and recognition together in a single platform so teachers can see their growth and leadership can support improvement with better information.
 
+
+---
 
 ## Live application and verification
 
