@@ -3,9 +3,7 @@
 <p align="center"><strong>A workspace for teacher development and school leadership.</strong></p>
 
 <p align="center">
-  <img alt="Next.js" src="https://img.shields.io/static/v1?label=&amp;message=Next.js&amp;color=6366F1&amp;style=for-the-badge">
-  <img alt="TypeScript" src="https://img.shields.io/static/v1?label=&amp;message=TypeScript&amp;color=0F766E&amp;style=for-the-badge">
-  <img alt="Supabase" src="https://img.shields.io/static/v1?label=&amp;message=Supabase&amp;color=2563EB&amp;style=for-the-badge">
+  <img src="docs/readme-cover.svg" alt="TeachTrack project illustration" width="1120">
 </p>
 
 <p align="center">
