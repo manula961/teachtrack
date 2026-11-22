@@ -1,4 +1,19 @@
-# TeachTrack — Teacher Performance & Development Tracking System
+<h1 align="center">🎓 TeachTrack — Teacher Performance &amp; Development Tracking System</h1>
+
+<p align="center"><strong>A workspace for teacher development and school leadership.</strong></p>
+
+<p align="center">
+  <img alt="Next.js" src="https://img.shields.io/static/v1?label=&amp;message=Next.js&amp;color=6366F1&amp;style=for-the-badge">
+  <img alt="TypeScript" src="https://img.shields.io/static/v1?label=&amp;message=TypeScript&amp;color=0F766E&amp;style=for-the-badge">
+  <img alt="Supabase" src="https://img.shields.io/static/v1?label=&amp;message=Supabase&amp;color=2563EB&amp;style=for-the-badge">
+</p>
+
+<p align="center">
+  <a href="#project-summary">Project summary</a> · <a href="#core-features">Core features</a> · <a href="#technology-stack">Technology stack</a> · <a href="#usage-guidance">Usage guidance</a>
+</p>
+
+---
+
 
 TeachTrack is a full-stack web application created for the **NEXENTIA 26 Codinex Web Development competition**. It gives teachers and school leadership one secure place to manage professional profiles, attendance, punctuality, training, certifications, lesson plans, feedback, observations, development goals, evidence, achievements, timetables, approvals, school responsibilities, and performance analytics.
 
