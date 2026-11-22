@@ -4,6 +4,18 @@ TeachTrack is a full-stack web application created for the **NEXENTIA 26 Codinex
 
 TeachTrack is designed around three ideas: **Track progress, Grow professionally, Excel through recognition.** Rather than reducing teacher performance to a single score, the platform combines multiple professional indicators and turns them into understandable trends, development recommendations, follow-up actions, and recognition.
 
+## Project summary
+
+TeachTrack brings teacher records, attendance, and professional development into one school workspace. Teachers can record evidence and follow their goals. School leaders can review observations, approvals, and department trends.
+
+| Workflow | Where to start in the source |
+| --- | --- |
+| Attendance and QR check-ins | [Attendance](app/(protected)/attendance/page.tsx) and [QR attendance](app/(protected)/qr-attendance/page.tsx) |
+| Coaching and professional development | [Observations](app/(protected)/observations/page.tsx), [follow-up](app/(protected)/observation-followup/page.tsx), and [goal check-ins](app/(protected)/goal-checkins/page.tsx) |
+| Evidence and reporting | [Evidence](app/(protected)/evidence/page.tsx), [Drive evidence API](app/api/evidence/google-drive/route.ts), and [report builder](app/(protected)/report-builder/page.tsx) |
+
+The application uses Next.js, React, TypeScript, and Supabase. Use `npm run dev` for local development, `npm run check` for type checking, and `npm run build` for a production build. See [the environment template](.env.example) for configuration.
+
 ## Project objectives
 
 The system is built to help schools:
