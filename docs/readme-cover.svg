@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1120 320" role="img" aria-labelledby="title desc">
+<title id="title">TeachTrack</title><desc id="desc">A workspace for teacher development</desc>
+<defs><linearGradient id="base"><stop stop-color="#151346"/><stop offset="1" stop-color="#34258a"/></linearGradient><pattern id="grid" width="28" height="28" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="1.4" fill="#fff" opacity=".13"/></pattern></defs>
+<rect width="1120" height="320" rx="28" fill="url(#base)"/><rect x="613" y="18" width="489" height="284" rx="22" fill="url(#grid)"/>
+<path d="M58 92h58" stroke="#b6f7c5" stroke-width="6" stroke-linecap="round"/>
+<text x="54" y="170" fill="#fff" font-family="system-ui, sans-serif" font-size="64" font-weight="750">TeachTrack</text>
+<text x="57" y="218" fill="#b6f7c5" font-family="system-ui, sans-serif" font-size="22" font-weight="500">A workspace for teacher development</text>
+<g transform="translate(673 44)"><rect x="35" y="17" width="340" height="205" rx="22" fill="#f4f2ff"/><path d="M35 55H375" stroke="#ded9ff"/><circle cx="57" cy="37" r="5" fill="#7859ef"/><circle cx="74" cy="37" r="5" fill="#a798ef"/><rect x="55" y="74" width="83" height="127" rx="12" fill="#e6e0ff"/><circle cx="96" cy="104" r="15" fill="#7859ef"/><path d="M74 140h44m-44 15h35m-35 15h40" stroke="#9283bd" stroke-width="5" stroke-linecap="round"/><rect x="154" y="74" width="200" height="127" rx="12" fill="#282060"/><path d="M175 166h158m-158-27h158m-158-27h158" stroke="#ffffff" opacity=".18"/><path d="m175 170 32-27 29 10 33-37 27 9 37-28" fill="none" stroke="#b6f7c5" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></g>
+</svg>
