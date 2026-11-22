@@ -31,7 +31,7 @@ Configure Supabase using the environment template before trying authenticated wo
 ## Project reference
 
 <details>
-<summary>Expand detailed documentation</summary>
+<summary><strong>🧭 Product goals and features</strong></summary>
 
 TeachTrack is a full-stack web application created for the **NEXENTIA 26 Codinex Web Development competition**. It gives teachers and school leadership one secure place to manage professional profiles, attendance, punctuality, training, certifications, lesson plans, feedback, observations, development goals, evidence, achievements, timetables, approvals, school responsibilities, and performance analytics.
 
@@ -200,6 +200,11 @@ TeachTrack includes a web manifest, application icons, service-worker support, i
 
 ---
 
+</details>
+
+<details>
+<summary><strong>👥 Roles, security, and performance</strong></summary>
+
 ## User roles and permissions
 
 TeachTrack uses five primary application roles.
@@ -267,6 +272,11 @@ The resulting analytics are intended to support professional reflection and lead
 
 ---
 
+</details>
+
+<details>
+<summary><strong>⚙️ Stack and daily workflows</strong></summary>
+
 ## Technology stack
 
 **Workspace guide**
@@ -326,6 +336,11 @@ Authorized school leadership can search for teachers, review professional perfor
 TeachTrack is intended to be used through a modern web browser. Users sign in using the appropriate teacher or management entry point. Available modules are automatically adjusted according to the authenticated user's role. Academic year and term selectors provide context for school records, while the sidebar, search, command palette, Quick Add, and dashboards provide access to the main workflows.
 
 Teachers should use their own account for personal professional records. Leadership accounts should only be assigned to authorized school personnel. Evidence and private documents should contain appropriate school-approved material and should not be shared publicly outside the platform's intended workflows.
+
+</details>
+
+<details>
+<summary><strong>📚 Database, privacy, and release notes</strong></summary>
 
 ## Database and migration documentation
 
