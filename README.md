@@ -6,18 +6,38 @@
   <img src="docs/readme-cover.svg" alt="TeachTrack project illustration" width="1120">
 </p>
 
-<p align="center">
-  <a href="#project-summary">Project summary</a> · <a href="#core-features">Core features</a> · <a href="#technology-stack">Technology stack</a> · <a href="#usage-guidance">Usage guidance</a>
-</p>
+<p align="center"><a href="#project-summary">Project summary</a> · <a href="#quick-start">Quick start</a> · <a href="#project-reference">Project reference</a></p>
 
----
+## Project summary
 
+Track teacher development from classroom observation to follow-up. Built for the NEXENTIA 26 Codinex competition.
+
+| 🎓 Teachers | 🧭 School leaders | 📊 Reporting |
+| --- | --- | --- |
+| [Set goals and track progress](app/(protected)/goals/page.tsx) | [Review observations and follow-ups](app/(protected)/observations/page.tsx) | [Build reports](app/(protected)/report-builder/page.tsx) |
+
+[Try the demo](https://teachtrack.devoraid.com) · [Environment template](.env.example) · [Release notes](docs/FEATURE_INTEGRITY_RELEASE.md)
+
+## Quick start
+
+```sh
+npm install
+npm run dev
+npm run check
+```
+
+Configure Supabase using the environment template before trying authenticated workflows.
+
+## Project reference
+
+<details>
+<summary>Expand detailed documentation</summary>
 
 TeachTrack is a full-stack web application created for the **NEXENTIA 26 Codinex Web Development competition**. It gives teachers and school leadership one secure place to manage professional profiles, attendance, punctuality, training, certifications, lesson plans, feedback, observations, development goals, evidence, achievements, timetables, approvals, school responsibilities, and performance analytics.
 
 TeachTrack is designed around three ideas: **Track progress, Grow professionally, Excel through recognition.** Rather than reducing teacher performance to a single score, the platform combines multiple professional indicators and turns them into understandable trends, development recommendations, follow-up actions, and recognition.
 
-## Project summary
+## Detailed overview
 
 TeachTrack brings teacher records, attendance, and professional development into one school workspace. Teachers can record evidence and follow their goals. School leaders can review observations, approvals, and department trends.
 
@@ -380,3 +400,5 @@ TeachTrack is designed to make teacher development more organized, understandabl
 - **Repair and security verification:** [Audit remediation notes](docs/AUDIT_REMEDIATION.md)
 
 Use only designated competition demo accounts with fictional data. School administrators should verify ownership before linking teacher accounts and enable leaked-password protection in Supabase Auth before using real school records.
+
+</details>
